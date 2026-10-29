@@ -3385,3 +3385,18 @@ def test_median_filter_lim2():
     expected = np.ones(8)
     filtered_samples = ndimage.median_filter(sample_array, size=19, mode="reflect")
     xp_assert_close(filtered_samples, expected, check_shape=True, check_dtype=True)
+
+
+@pytest.mark.parametrize('function', [ndimage.laplace, ndimage.gaussian_laplace,
+                                     ndimage.gaussian_gradient_magnitude])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('reverse_output', [False, True])
+def test_derivative_filter_overlapping_output(function, dtype, reverse_output):
+    x = np.zeros((17, 19), dtype=dtype)
+    x[8, 9] = 1
+    kwargs = {} if function is ndimage.laplace else {'sigma': 1.2}
+    expected = function(x, mode='constant', **kwargs)
+    output = x[::-1] if reverse_output else x
+    actual = function(x, output=output, mode='constant', **kwargs)
+    assert actual is output
+    np.testing.assert_array_equal(actual, expected, strict=True)

@@ -1031,6 +1031,8 @@ def generic_laplace(input, derivative2, output=None, mode="reflect",
         extra_keywords = {}
     input = np.asarray(input)
     output = _ni_support._get_output(output, input)
+    if np.may_share_memory(input, output):
+        input = input.copy()
     axes = _ni_support._check_axes(axes, input.ndim)
     if len(axes) > 0:
         modes = _ni_support._normalize_sequence(mode, len(axes))
@@ -1190,6 +1192,8 @@ def generic_gradient_magnitude(input, derivative, output=None,
         extra_keywords = {}
     input = np.asarray(input)
     output = _ni_support._get_output(output, input)
+    if np.may_share_memory(input, output):
+        input = input.copy()
     axes = _ni_support._check_axes(axes, input.ndim)
     if len(axes) > 0:
         modes = _ni_support._normalize_sequence(mode, len(axes))
