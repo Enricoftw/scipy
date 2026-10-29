@@ -10,6 +10,7 @@
 
 #include <Python.h>
 #include <fstream>
+#include <filesystem>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -36,7 +37,7 @@ struct read_cursor {
     /**
      * Open a file.
      */
-    read_cursor(const std::string& filename): stream_ptr(std::make_shared<std::ifstream>(filename)) {}
+    read_cursor(const std::string& filename): stream_ptr(std::make_shared<std::ifstream>(std::filesystem::u8path(filename))) {}
 
     /**
      * Use a Python stream. Needs to be a shared_ptr because this stream object needs to stay alive for the lifetime
@@ -76,7 +77,7 @@ struct write_cursor {
      * Open a file
      * @param filename path
      */
-    write_cursor(const std::string& filename): stream_ptr(std::make_unique<std::ofstream>(filename, std::ios_base::out | std::ios_base::binary)) {}
+    write_cursor(const std::string& filename): stream_ptr(std::make_unique<std::ofstream>(std::filesystem::u8path(filename), std::ios_base::out | std::ios_base::binary)) {}
 
     /**
      * Use a Python stream. Needs to be a shared_ptr because this stream object needs to stay alive for the lifetime

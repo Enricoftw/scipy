@@ -863,3 +863,19 @@ def test_gh21999_file_not_exist():
     tmpdir = mkdtemp(suffix=str(threading.get_native_id()))
     wrong_fn = os.path.join(tmpdir, 'not_exist_test_file.mtx')
     assert_raises(FileNotFoundError, mmread, wrong_fn)
+
+
+@pytest.mark.parametrize("unicode_directory", [False, True])
+def test_unicode_path(tmp_path, unicode_directory):
+    # gh-24515: both the directory and the filename must be preserved.
+    folder = tmp_path / ("matrix_Ω" if unicode_directory else "matrix")
+    folder.mkdir()
+    path = folder / "matrix_Ω.mtx"
+    expected = np.eye(2)
+    mmwrite(path, expected)
+    assert path.is_file()
+    assert_array_equal(mmread(path, spmatrix=False), expected, strict=True)
+    # Read an independently written file to avoid a paired path conversion error.
+    with open(path, "wb") as stream:
+        mmwrite(stream, expected)
+    assert_array_equal(mmread(path, spmatrix=False), expected, strict=True)
